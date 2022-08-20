@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericMemoryCache", "GenericMemoryCache\GenericMemoryCache.csproj", "{CA86FD5D-7F57-4372-A578-CFD8006B14E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericMemoryCache.Tests", "GenericMemoryCache.Tests\GenericMemoryCache.Tests.csproj", "{2B25EA11-23C7-4304-83F9-981EFA42343A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{853F2D57-C78D-41B7-A2FF-4CDC7978BB2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{853F2D57-C78D-41B7-A2FF-4CDC7978BB2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{853F2D57-C78D-41B7-A2FF-4CDC7978BB2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{853F2D57-C78D-41B7-A2FF-4CDC7978BB2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA86FD5D-7F57-4372-A578-CFD8006B14E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA86FD5D-7F57-4372-A578-CFD8006B14E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA86FD5D-7F57-4372-A578-CFD8006B14E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA86FD5D-7F57-4372-A578-CFD8006B14E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B25EA11-23C7-4304-83F9-981EFA42343A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B25EA11-23C7-4304-83F9-981EFA42343A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B25EA11-23C7-4304-83F9-981EFA42343A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B25EA11-23C7-4304-83F9-981EFA42343A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

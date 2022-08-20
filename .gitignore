@@ -1,0 +1,8 @@
+GenericMemoryCache/obj/*
+GenericMemoryCache/bin/*
+GenericMemoryCache.Tests/bin/*
+GenericMemoryCache.Tests/obj/*
+
+GenericMemoryCache.Tests/.DS_Store
+GenericMemoryCache/.DS_Store
+.DS_Store
