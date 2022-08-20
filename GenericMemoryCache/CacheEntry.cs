@@ -11,7 +11,7 @@ public class CacheEntry
     public Type ItemType { get; set; }
 
     // Create CacheEntry and returns object.
-    public CacheEntry Create<IEntry>(IEntry entry)
+    public static CacheEntry Create<IEntry>(IEntry entry)
     {
         if (entry == null)
         {
