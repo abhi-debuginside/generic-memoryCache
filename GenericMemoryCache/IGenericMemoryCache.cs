@@ -22,4 +22,6 @@ public interface IGenericMemoryCache
     int MaxItemCount { get; set; }
 
     bool SizeExceeded { get; }
+
+    List<string> Removedkeys { get; set; }
 }

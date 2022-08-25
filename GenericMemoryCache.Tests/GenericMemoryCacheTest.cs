@@ -2,16 +2,19 @@ using System;
 using System.Threading.Tasks;
 using LUSID.Utilities.GenericMemoryCache;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace LUSID.Utilities.GenericMemoryCache.Tests;
 
 public class GenericMemoryCacheTest
 {
     private readonly IGenericMemoryCache _cache;
+    ITestOutputHelper _output;
     private readonly int _cacheSize = 5;
-    public GenericMemoryCacheTest()
+    public GenericMemoryCacheTest(ITestOutputHelper output)
     {
         _cache = new GenericMemoryCache(maxItemCount: _cacheSize);
+        _output = output;
     }
 
     #region Tests - IsExists
@@ -210,6 +213,11 @@ public class GenericMemoryCacheTest
         var value2Exist = _cache.IsExists(key2);
         var value4Exist = _cache.IsExists(key4);
         var value6Exist = _cache.IsExists(key6);
+
+        foreach (var item in _cache.Removedkeys)
+        {
+            _output.WriteLine(item);
+        }
 
         // Assert
         Assert.False(value2Exist);
