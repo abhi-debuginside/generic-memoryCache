@@ -9,6 +9,14 @@ public class CacheEntry
     }
     public object Item { get; set; }
     public Type ItemType { get; set; }
+    public DateTime LastAccessedOn { get; set; }
+    public DateTime AddedOn { get; set; }
+
+    public IEntry Get<IEntry>()
+    {
+        LastAccessedOn = DateTime.UtcNow;
+        return (IEntry)Item;
+    }
 
     // Create CacheEntry and returns object.
     public static CacheEntry Create<IEntry>(IEntry entry)
@@ -17,7 +25,11 @@ public class CacheEntry
         {
             throw new ArgumentException("Cache entry cannot be null");
         }
+        var cacheEntry = new CacheEntry(entry, typeof(IEntry));
+        var now = DateTime.UtcNow;
+        cacheEntry.AddedOn = now;
+        cacheEntry.LastAccessedOn = now;
 
-        return new CacheEntry(entry, typeof(IEntry));
+        return cacheEntry;
     }
 }

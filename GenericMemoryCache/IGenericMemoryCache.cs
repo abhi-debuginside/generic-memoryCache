@@ -13,4 +13,13 @@ public interface IGenericMemoryCache
     // Summary:
     //     Add or update an item into cache.
     void Set<IEntry>(string key, IEntry entry);
+
+    //
+    // Summary:
+    //     Get an item from cache based on key .
+    IEntry Get<IEntry>(string key);
+
+    int MaxItemCount { get; set; }
+
+    bool SizeExceeded { get; }
 }
