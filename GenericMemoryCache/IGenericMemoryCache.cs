@@ -19,9 +19,7 @@ public interface IGenericMemoryCache
     //     Get an item from cache based on key .
     IEntry Get<IEntry>(string key);
 
-    int MaxItemCount { get; set; }
+    int MaxItemCount { get; }
 
     bool SizeExceeded { get; }
-
-    List<string> Removedkeys { get; set; }
 }

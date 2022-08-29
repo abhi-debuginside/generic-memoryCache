@@ -31,7 +31,7 @@ Method 3 void Add(key, object)
     2. If the cache becomes full, any attempts to add additional items should succeed - done
     3. The ‘least recently used’ approach when selecting which item to evict. - done
 ## Req 3 -
-    1. Should be thread-safe for all methods
+    1. Should be thread-safe for all methods -done
     2. Implement callback, allows the consumer to know when items get evicted
 
 # Times
@@ -43,5 +43,9 @@ Method 3 void Add(key, object)
 25 aug 22
 - 12:00 to 14:00
 
+29 Aug 22
+- 9:00 - 11:30
+- 17:00 - 19:00
+- 23:00 - 
 
 

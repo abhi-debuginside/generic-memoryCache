@@ -4,17 +4,12 @@ public class GenericMemoryCache : IGenericMemoryCache
     Dictionary<string, CacheEntry> _cache = new Dictionary<string, CacheEntry>();
     private readonly Object _cacheLock = new Object();
 
-    public GenericMemoryCache()
-    {
-
-    }
-
-    public GenericMemoryCache(int maxItemCount)
+    public GenericMemoryCache(int maxItemCount = Constants.MAXITEMCOUNT)
     {
         MaxItemCount = maxItemCount;
     }
 
-    public int MaxItemCount { get; set; } = 50;
+    public int MaxItemCount { get; private set; }
 
     public bool SizeExceeded
     {
@@ -24,14 +19,13 @@ public class GenericMemoryCache : IGenericMemoryCache
         }
     }
 
-    public List<string> Removedkeys { get; set; } = new List<string>();
-
     public bool IsExists(string key)
     {
         if (string.IsNullOrWhiteSpace(key))
         {
             throw new ArgumentException("Invalid key. Key should be non nullable.");
         }
+
         lock (_cacheLock)
         {
             return _cache.ContainsKey(key.ToLowerInvariant()) ? true : false;
@@ -55,8 +49,6 @@ public class GenericMemoryCache : IGenericMemoryCache
                 var leastAccessedItem = _cache.OrderBy(c => c.Value.LastAccessedOn)?.FirstOrDefault();
                 if (leastAccessedItem.HasValue)
                 {
-                    var message = $"Key: {leastAccessedItem.Value.Key}, Created:{leastAccessedItem.Value.Value.AddedOn.ToLongTimeString()}, Accessed: {leastAccessedItem.Value.Value.LastAccessedOn.ToLongTimeString()}";
-                    Removedkeys.Add(message);
                     _cache.Remove(leastAccessedItem.Value.Key);
                 }
             }
@@ -79,10 +71,13 @@ public class GenericMemoryCache : IGenericMemoryCache
     {
         if (IsExists(key))
         {
-            var cacheEntry = _cache.GetValueOrDefault(key);
-            if (cacheEntry != null)
+            lock (_cacheLock)
             {
-                return cacheEntry.Get<IEntry>();
+                var cacheEntry = _cache.GetValueOrDefault(key);
+                if (cacheEntry != null)
+                {
+                    return cacheEntry.Get<IEntry>();
+                }
             }
         }
 

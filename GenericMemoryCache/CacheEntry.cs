@@ -2,20 +2,22 @@ namespace LUSID.Utilities.GenericMemoryCache;
 
 public class CacheEntry
 {
-    private CacheEntry(object item, Type itemType)
+    private readonly object cacheLock = new object();
+    private CacheEntry(object item)
     {
         Item = item;
-        ItemType = itemType;
     }
     public object Item { get; set; }
-    public Type ItemType { get; set; }
     public DateTime LastAccessedOn { get; set; }
     public DateTime AddedOn { get; set; }
 
     public IEntry Get<IEntry>()
     {
-        LastAccessedOn = DateTime.UtcNow;
-        return (IEntry)Item;
+        lock (cacheLock)
+        {
+            LastAccessedOn = DateTime.UtcNow;
+            return (IEntry)Item;
+        }
     }
 
     // Create CacheEntry and returns object.
@@ -25,7 +27,7 @@ public class CacheEntry
         {
             throw new ArgumentException("Cache entry cannot be null");
         }
-        var cacheEntry = new CacheEntry(entry, typeof(IEntry));
+        var cacheEntry = new CacheEntry(entry);
         var now = DateTime.UtcNow;
         cacheEntry.AddedOn = now;
         cacheEntry.LastAccessedOn = now;
