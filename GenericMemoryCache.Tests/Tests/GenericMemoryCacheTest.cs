@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using LUSID.Utilities.GenericMemoryCache.Event;
 using LUSID.Utilities.GenericMemoryCache.Tests.Fixtures;
 using Xunit;
 using Xunit.Abstractions;
@@ -238,6 +241,62 @@ public class GenericMemoryCacheTest : IClassFixture<GenericMemoryCacheFixture>
         Assert.False(value2Exist);
         Assert.True(value4Exist);
         Assert.True(value6Exist);
+    }
+    [Fact(DisplayName = "Evit - Should raise an item evicted event  when cache is full, least recently used item removed from cache")]
+    public void Evit_ShouldRaiseItemEvitedEvent_WhenItemEvictedFromCache()
+    {
+        // Arrange
+        List<EvictedEventArgs> evictedEventArgs = new List<EvictedEventArgs>();
+        _cache.ItemEvicted += (object sender, EvictedEventArgs e) => evictedEventArgs.Add(e);
+
+        string key1 = "key1";
+        string value1 = "key1";
+        _cache.Set<string>(key1, value1);
+        Task.Delay(new TimeSpan(0, 1, 0));
+
+        string key2 = "key2";
+        string value2 = "key2";
+        _cache.Set<string>(key2, value2);
+        Task.Delay(new TimeSpan(0, 1, 0));
+
+        string key3 = "key3";
+        int value3 = 5;
+        _cache.Set<int>(key3, value3);
+        Task.Delay(new TimeSpan(0, 1, 0));
+
+        string key4 = "key4";
+        decimal value4 = 890.675M;
+        _cache.Set<decimal>(key4, value4);
+        Task.Delay(new TimeSpan(0, 1, 0));
+
+        string key5 = "key5";
+        bool value5 = false;
+        _cache.Set<bool>(key5, value5);
+        Task.Delay(new TimeSpan(0, 1, 0));
+
+        // getting key 1, key 3, key 5
+        var gettingValue1 = _cache.Get<string>(key1);
+        Task.Delay(new TimeSpan(0, 1, 0));
+
+        var gettingValue3 = _cache.Get<int>(key3);
+        Task.Delay(new TimeSpan(0, 1, 0));
+
+        var gettingValue5 = _cache.Get<bool>(key5);
+        Task.Delay(new TimeSpan(0, 1, 0));
+
+        // Act
+
+        // least access will key 2 then key 4.
+        var dateTime6 = DateTime.UtcNow;
+        string key6 = "key6";
+        var value6 = "hello";
+        _cache.Set<string>(key6, value6);
+
+        // Assert
+        Assert.Equal(1, evictedEventArgs.Count);
+        Assert.Equal(value2, evictedEventArgs.FirstOrDefault().Item);
+        Assert.Equal(key2, evictedEventArgs.FirstOrDefault().Key);
+        Assert.True(dateTime6 > evictedEventArgs.FirstOrDefault().LastAccessedOn);
     }
     #endregion
 }

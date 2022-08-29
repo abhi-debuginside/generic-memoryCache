@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using LUSID.Utilities.GenericMemoryCache.Event;
 
 namespace LUSID.Utilities.GenericMemoryCache;
 
@@ -20,6 +21,8 @@ public class GenericMemoryCache : IGenericMemoryCache
             return _cache.Count() >= MaxItemCount ? true : false;
         }
     }
+
+    public event EventHandler<EvictedEventArgs> ItemEvicted;
 
     public bool IsExists(string key)
     {
@@ -51,7 +54,19 @@ public class GenericMemoryCache : IGenericMemoryCache
             var leastAccessedItem = _cache.OrderBy(c => c.Value.LastAccessedOn)?.FirstOrDefault();
             if (leastAccessedItem.HasValue)
             {
-                _cache.TryRemove(leastAccessedItem.Value.Key, out CacheEntry cacheEntry1);
+                // get values and raise item evicted event.
+                if (_cache.TryRemove(leastAccessedItem.Value.Key, out CacheEntry cacheEntry1))
+                {
+                    var eventArgs = new EvictedEventArgs
+                    {
+                        EvictedOn = DateTime.UtcNow,
+                        Key = leastAccessedItem.Value.Key,
+                        Item = cacheEntry1.Item,
+                        LastAccessedOn = cacheEntry1.LastAccessedOn,
+                    };
+
+                    OnItemEvicted(eventArgs);
+                }
             }
         }
 
@@ -76,5 +91,14 @@ public class GenericMemoryCache : IGenericMemoryCache
         }
 
         throw new Exception($"Item not found. key: {key}");
+    }
+
+    protected virtual void OnItemEvicted(EvictedEventArgs e)
+    {
+        EventHandler<EvictedEventArgs> handler = ItemEvicted;
+        if (handler != null)
+        {
+            handler(this, e);
+        }
     }
 }

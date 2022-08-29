@@ -1,9 +1,14 @@
 using System;
+using LUSID.Utilities.GenericMemoryCache.Event;
 
 namespace LUSID.Utilities.GenericMemoryCache;
 
 public interface IGenericMemoryCache
 {
+    int MaxItemCount { get; }
+
+    bool SizeExceeded { get; }
+
     //
     // Summary:
     //     Return TRUE if an item key found in cache.
@@ -19,7 +24,8 @@ public interface IGenericMemoryCache
     //     Get an item from cache based on key .
     IEntry Get<IEntry>(string key);
 
-    int MaxItemCount { get; }
-
-    bool SizeExceeded { get; }
+    //
+    // Summary:
+    //     Event will raise when an item gets evicted from cache.
+    event EventHandler<EvictedEventArgs> ItemEvicted;
 }
