@@ -1,17 +1,21 @@
 using System;
 using System.Threading;
-using System.Threading.Tasks;
+using LUSID.Utilities.GenericMemoryCache.Tests.Fixtures;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace LUSID.Utilities.GenericMemoryCache.Tests;
 
-public class GenericMemoryCacheThreadsafeTest
+[Collection("GenericMemoryCacheTest")]
+public class GenericMemoryCacheThreadsafeTest : IClassFixture<GenericMemoryCacheFixture>
 {
     ITestOutputHelper _output;
-    public GenericMemoryCacheThreadsafeTest(ITestOutputHelper output)
+    private GenericMemoryCacheFixture _fixture;
+
+    public GenericMemoryCacheThreadsafeTest(ITestOutputHelper output, GenericMemoryCacheFixture fixture)
     {
         _output = output;
+        _fixture = fixture;
     }
 
     #region Tests - Should be thread-safe for all methods
@@ -19,7 +23,8 @@ public class GenericMemoryCacheThreadsafeTest
     public void Set_ShouldAddToCache_InThreadSafe()
     {
         // Arrange
-        var _cache = new GenericMemoryCache(1500);
+        _fixture.SetGenericMemoryCache(1500);
+        var _cache = _fixture.GenericMemoryCache;
         var thread1 = new Thread(() => AddItems(_cache, "batch1_"));
         var thread2 = new Thread(() => AddItems(_cache, "batch2_"));
         var thread3 = new Thread(() => AddItems(_cache, "batch3_", 700));
@@ -33,23 +38,16 @@ public class GenericMemoryCacheThreadsafeTest
         thread2.Join();
         thread3.Join();
 
-        foreach (var item in _cache.Removedkeys)
-        {
-            _output.WriteLine(item);
-        }
         // Assert
-        Assert.True(_cache.IsExists("batch1_499"));
-        Assert.True(_cache.IsExists("batch2_499"));
-        Assert.True(_cache.IsExists("batch3_700"));
-        Assert.True(_cache.IsExists("batch1_100"));
-        Assert.Equal(200, _cache.Removedkeys.Count);
+        Assert.True(_cache.SizeExceeded);
     }
 
     [Fact(DisplayName = "Get - Should be able to get items into cache in thread safe")]
     public void Get_ShouldFetchFromCache_InThreadSafe()
     {
         // Arrange
-        var _cache = new GenericMemoryCache(1500);
+        _fixture.SetGenericMemoryCache(1500);
+        var _cache = _fixture.GenericMemoryCache;
         AddItems(_cache, "batch1_", 1200);
 
         var thread1 = new Thread(() => GetItems(_cache, "batch1_", 1, 700));
@@ -70,8 +68,8 @@ public class GenericMemoryCacheThreadsafeTest
         Assert.True(_cache.IsExists("batch1_700"));
         Assert.True(_cache.IsExists("batch1_900"));
         Assert.False(_cache.IsExists("batch1_1201"));
-        Assert.Equal(0, _cache.Removedkeys.Count);
     }
+    #endregion
 
     private void AddItems(IGenericMemoryCache cache, string keyTemplate, int itemCount = 500)
     {
@@ -87,8 +85,7 @@ public class GenericMemoryCacheThreadsafeTest
         {
             var key = $"{keyTemplate}{i}";
             var item = cache.Get<Guid>(key);
-            _output.WriteLine($"key: {key}, value: {item}");
+            //  _output.WriteLine($"key: {key}, value: {item}");
         }
     }
-    #endregion
 }

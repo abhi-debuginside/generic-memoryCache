@@ -1,10 +1,12 @@
-﻿namespace LUSID.Utilities.GenericMemoryCache;
+﻿using System.Collections.Concurrent;
+
+namespace LUSID.Utilities.GenericMemoryCache;
+
 public class GenericMemoryCache : IGenericMemoryCache
 {
-    Dictionary<string, CacheEntry> _cache = new Dictionary<string, CacheEntry>();
-    private readonly Object _cacheLock = new Object();
+    ConcurrentDictionary<string, CacheEntry> _cache = new ConcurrentDictionary<string, CacheEntry>();
 
-    public GenericMemoryCache(int maxItemCount = Constants.MAXITEMCOUNT)
+    public GenericMemoryCache(int maxItemCount)
     {
         MaxItemCount = maxItemCount;
     }
@@ -26,61 +28,53 @@ public class GenericMemoryCache : IGenericMemoryCache
             throw new ArgumentException("Invalid key. Key should be non nullable.");
         }
 
-        lock (_cacheLock)
-        {
-            return _cache.ContainsKey(key.ToLowerInvariant()) ? true : false;
-        }
+        return _cache.TryGetValue(key, out CacheEntry cacheEntry);
     }
 
     public void Set<IEntry>(string key, IEntry entry)
     {
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            throw new ArgumentException("Invalid key. Key should be non nullable.");
+        }
+
         if (entry == null)
         {
             throw new ArgumentException("Cache entry cannot be null");
         }
 
-        lock (_cacheLock)
+        var cacheEntry = CacheEntry.Create<IEntry>(entry);
+
+        if (SizeExceeded)
         {
-            var cacheEntry = CacheEntry.Create<IEntry>(entry);
+            // remove least accessed item from cache. so recently accessed item should stay in cache.
+            var leastAccessedItem = _cache.OrderBy(c => c.Value.LastAccessedOn)?.FirstOrDefault();
+            if (leastAccessedItem.HasValue)
+            {
+                _cache.TryRemove(leastAccessedItem.Value.Key, out CacheEntry cacheEntry1);
+            }
+        }
 
-            if (SizeExceeded)
-            {
-                // remove least accessed item from cache. so recently accessed item should stay in cache.
-                var leastAccessedItem = _cache.OrderBy(c => c.Value.LastAccessedOn)?.FirstOrDefault();
-                if (leastAccessedItem.HasValue)
-                {
-                    _cache.Remove(leastAccessedItem.Value.Key);
-                }
-            }
-
-            if (IsExists(key))
-            {
-                // remove and add
-                _cache.Remove(key);
-                _cache.Add(key, cacheEntry);
-            }
-            else
-            {
-                // create a new entry
-                _cache.Add(key, cacheEntry);
-            }
+        // add an item not exists.
+        if (!_cache.TryAdd(key, cacheEntry))
+        {
+            // else Update as new 
+            _cache[key] = cacheEntry;
         }
     }
 
     public IEntry Get<IEntry>(string key)
     {
-        if (IsExists(key))
+        if (string.IsNullOrWhiteSpace(key))
         {
-            lock (_cacheLock)
-            {
-                var cacheEntry = _cache.GetValueOrDefault(key);
-                if (cacheEntry != null)
-                {
-                    return cacheEntry.Get<IEntry>();
-                }
-            }
+            throw new ArgumentException("Invalid key. Key should be non nullable.");
         }
 
-        throw new Exception("Item not found.");
+        if (_cache.TryGetValue(key, out CacheEntry cacheEntry))
+        {
+            return cacheEntry.Get<IEntry>();
+        }
+
+        throw new Exception($"Item not found. key: {key}");
     }
 }

@@ -1,19 +1,21 @@
 using System;
 using System.Threading.Tasks;
-using LUSID.Utilities.GenericMemoryCache;
+using LUSID.Utilities.GenericMemoryCache.Tests.Fixtures;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace LUSID.Utilities.GenericMemoryCache.Tests;
 
-public class GenericMemoryCacheTest
+[Collection("GenericMemoryCacheTest")]
+public class GenericMemoryCacheTest : IClassFixture<GenericMemoryCacheFixture>
 {
-    private readonly IGenericMemoryCache _cache;
+    private IGenericMemoryCache _cache;
     ITestOutputHelper _output;
     private readonly int _cacheSize = 5;
-    public GenericMemoryCacheTest(ITestOutputHelper output)
+    public GenericMemoryCacheTest(ITestOutputHelper output, GenericMemoryCacheFixture fixture)
     {
-        _cache = new GenericMemoryCache(maxItemCount: _cacheSize);
+        fixture.SetGenericMemoryCache(_cacheSize);
+        _cache = fixture.GenericMemoryCache;
         _output = output;
     }
 
@@ -47,20 +49,6 @@ public class GenericMemoryCacheTest
     #endregion
 
     #region Tests - Add or update an item to cache
-    [Fact(DisplayName = "Set - Should add or update an item to cache")]
-    public void Set_ShouldAddOrUpdateAnItemAddedToCache()
-    {
-        // Arrange
-        string key = "key1";
-        var entry = Guid.NewGuid();
-        var expected = true;
-
-        // Act
-        _cache.Set<Guid>(key, entry);
-
-        // Assert
-        Assert.Equal(expected, _cache.IsExists(key));
-    }
 
     [Fact(DisplayName = "Set - Should throw error if item key is null")]
     public void Set_ShouldThrowException_IfItemKeyIsNull()
@@ -86,6 +74,38 @@ public class GenericMemoryCacheTest
         // Act & Assert
         var exception = Assert.Throws<System.ArgumentException>(() => _cache.Set<Guid?>(key, entry));
         Assert.Equal(expected, exception.Message);
+    }
+
+    [Fact(DisplayName = "Set - Should add or update an item to cache")]
+    public void Set_ShouldAddOrUpdateAnItemAddedToCache()
+    {
+        // Arrange
+        string key = "key1";
+        var entry = Guid.NewGuid();
+        var expected = true;
+
+        // Act
+        _cache.Set<Guid>(key, entry);
+
+        // Assert
+        Assert.Equal(expected, _cache.IsExists(key));
+    }
+
+    [Fact(DisplayName = "Set - Should update an item if key is exists incache")]
+    public void Set_ShouldUpdateAnItem_IfKeyExistsInCache()
+    {
+        // Arrange
+        string key = "key1";
+        var entry1 = Guid.NewGuid();
+        var entry2 = Guid.NewGuid();
+
+        // Act
+        _cache.Set<Guid>(key, entry1);
+        _cache.Set<Guid>(key, entry2);
+        var result = _cache.Get<Guid>(key);
+
+        // Assert
+        Assert.Equal(entry2, result);
     }
 
     #endregion
@@ -121,7 +141,7 @@ public class GenericMemoryCacheTest
         // Assert
         Assert.IsType<Exception>(result);
 
-        Assert.Equal("Item not found.", result.Message);
+        Assert.Equal($"Item not found. key: {key}", result.Message);
     }
     #endregion
 
@@ -213,11 +233,6 @@ public class GenericMemoryCacheTest
         var value2Exist = _cache.IsExists(key2);
         var value4Exist = _cache.IsExists(key4);
         var value6Exist = _cache.IsExists(key6);
-
-        foreach (var item in _cache.Removedkeys)
-        {
-            _output.WriteLine(item);
-        }
 
         // Assert
         Assert.False(value2Exist);
