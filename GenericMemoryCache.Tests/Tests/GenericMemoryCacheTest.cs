@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using LUSID.Utilities.GenericMemoryCache.Event;
 using LUSID.Utilities.GenericMemoryCache.Tests.Fixtures;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace LUSID.Utilities.GenericMemoryCache.Tests;
 
@@ -13,13 +12,11 @@ namespace LUSID.Utilities.GenericMemoryCache.Tests;
 public class GenericMemoryCacheTest : IClassFixture<GenericMemoryCacheFixture>
 {
     private IGenericMemoryCache _cache;
-    ITestOutputHelper _output;
     private readonly int _cacheSize = 5;
-    public GenericMemoryCacheTest(ITestOutputHelper output, GenericMemoryCacheFixture fixture)
+    public GenericMemoryCacheTest(GenericMemoryCacheFixture fixture)
     {
         fixture.SetGenericMemoryCache(_cacheSize);
         _cache = fixture.GenericMemoryCache;
-        _output = output;
     }
 
     #region Tests - IsExists
@@ -187,6 +184,10 @@ public class GenericMemoryCacheTest : IClassFixture<GenericMemoryCacheFixture>
         // Assert
         Assert.Equal(result, newValue);
     }
+
+    #endregion
+
+    #region Tests - Evit least recently used item and raise an Event.
 
     [Fact(DisplayName = "Evit - Should evit least recently used item from cache when cache is full")]
     public void Evit_ShouldEvitLeastRecentlyUsedItem_WhenCacheIsFull()

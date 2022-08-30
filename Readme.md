@@ -14,7 +14,6 @@
     2. Implement callback, allows the consumer to know when items get evicted - done
 
 # Times
-
 20 aug 22
 - 09:40 to 10:01
 - 10:03 to 11:00
@@ -26,6 +25,11 @@
 - 9:00 - 11:30
 - 17:00 - 19:00
 - 23:00 - 24:30
+
+29 Aug 22
+- 08:00 08:20
+
+Total : 12 Hours.
 
 # Basic things
 - Unit test

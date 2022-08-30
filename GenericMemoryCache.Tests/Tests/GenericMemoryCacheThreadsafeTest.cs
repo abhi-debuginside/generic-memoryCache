@@ -2,24 +2,21 @@ using System;
 using System.Threading;
 using LUSID.Utilities.GenericMemoryCache.Tests.Fixtures;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace LUSID.Utilities.GenericMemoryCache.Tests;
 
 [Collection("GenericMemoryCacheTest")]
 public class GenericMemoryCacheThreadsafeTest : IClassFixture<GenericMemoryCacheFixture>
 {
-    ITestOutputHelper _output;
     private GenericMemoryCacheFixture _fixture;
 
-    public GenericMemoryCacheThreadsafeTest(ITestOutputHelper output, GenericMemoryCacheFixture fixture)
+    public GenericMemoryCacheThreadsafeTest(GenericMemoryCacheFixture fixture)
     {
-        _output = output;
         _fixture = fixture;
     }
 
     #region Tests - Should be thread-safe for all methods
-    [Fact(DisplayName = "Set - Should be able to add items into cache in thread safe1")]
+    [Fact(DisplayName = "Set - Should be able to add items into cache in thread safe")]
     public void Set_ShouldAddToCache_InThreadSafe()
     {
         // Arrange
@@ -42,7 +39,7 @@ public class GenericMemoryCacheThreadsafeTest : IClassFixture<GenericMemoryCache
         Assert.True(_cache.SizeExceeded);
     }
 
-    [Fact(DisplayName = "Get - Should be able to get items into cache in thread safe")]
+    [Fact(DisplayName = "Get - Should be able to get items from cache in thread safe")]
     public void Get_ShouldFetchFromCache_InThreadSafe()
     {
         // Arrange
@@ -85,7 +82,6 @@ public class GenericMemoryCacheThreadsafeTest : IClassFixture<GenericMemoryCache
         {
             var key = $"{keyTemplate}{i}";
             var item = cache.Get<Guid>(key);
-            //  _output.WriteLine($"key: {key}, value: {item}");
         }
     }
 }

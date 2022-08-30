@@ -5,10 +5,20 @@ namespace LUSID.Utilities.GenericMemoryCache;
 
 public interface IGenericMemoryCache
 {
+    //
+    // Summary:
+    //     Returns the predefined max item count.
     int MaxItemCount { get; }
 
+    //
+    // Summary:
+    //     Returns TRUE when cache items exceeded predefined max item count.
     bool SizeExceeded { get; }
 
+    //
+    // Summary:
+    //     Event will raise when an item gets evicted from cache.
+    event EventHandler<EvictedEventArgs> ItemEvicted;
     //
     // Summary:
     //     Return TRUE if an item key found in cache.
@@ -23,9 +33,4 @@ public interface IGenericMemoryCache
     // Summary:
     //     Get an item from cache based on key .
     IEntry Get<IEntry>(string key);
-
-    //
-    // Summary:
-    //     Event will raise when an item gets evicted from cache.
-    event EventHandler<EvictedEventArgs> ItemEvicted;
 }
